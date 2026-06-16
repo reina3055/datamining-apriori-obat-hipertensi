@@ -4,3 +4,4 @@ mlxtend
 xlsxwriter
 openpyxl
 plotly
+mysql-connector-python
