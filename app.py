@@ -480,7 +480,7 @@ def main_system():
             st.dataframe(tabel_tampil, use_container_width=True, hide_index=True)
         else: 
             st.warning("Jalankan analisis dulu di menu utama!")
-elif "Cetak Struk" in menu:
+    elif "Cetak Struk" in menu:
         from fpdf import FPDF
         st.subheader("🧾 Penerbitan Struk Lembar Arsip Internal Apotek")
         st.markdown("""
