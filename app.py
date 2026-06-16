@@ -636,10 +636,12 @@ elif "Cetak Struk" in menu:
                     pdf.cell(0, 5, f"  Catatan: {str(item['aturan']).encode('latin-1', 'ignore').decode('latin-1')}", ln=True)
                     pdf.ln(2)
                 
-                # PERBAIKAN PENANGANAN OUTPUT: Adaptif format string vs bytes di server cloud
+                # --- PERBAIKAN TOTAL PENANGANAN OUTPUT PDF ---
                 raw_pdf = pdf.output(dest='S')
                 if isinstance(raw_pdf, str):
                     pdf_bytes = bytes(raw_pdf, 'latin-1')
+                elif isinstance(raw_pdf, bytearray):
+                    pdf_bytes = bytes(raw_pdf)
                 else:
                     pdf_bytes = raw_pdf
                 
