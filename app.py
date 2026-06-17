@@ -14,23 +14,24 @@ except ImportError:
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="SI-APO | Premium", page_icon="💜", layout="wide")
 
-# --- 2. CSS MASTER (STABIL & AMAN UNTUK LAYOUT) ---
+# --- 2. CSS MASTER (PREMIUM, STABIL & ANTI-BENTROK) ---
 st.markdown("""
     <style>
-    /* Mengambil Font Premium */
+    /* Mengambil Font Premium dari Google Fonts */
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800&display=swap');
     
     /* Aplikasi Tema Warna & Font Utama */
     .stApp { 
         background-color: #050510; 
         color: #E2E8F0;
-        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
     
-    /* Mempercantik Judul Tanpa Merusak Komponen */
-    h1, h2, h3 {
+    /* Mempercantik Judul Utama */
+    h1, h2, h3, [data-testid="stHeader"] {
         font-family: 'Inter', sans-serif !important;
         font-weight: 700 !important;
+        letter-spacing: -0.5px !important;
         color: #ffffff !important;
     }
     
@@ -41,14 +42,14 @@ st.markdown("""
     }
     .bubble { 
         position: absolute; bottom: -150px; 
-        background: rgba(156, 39, 176, 0.03); 
-        border: 1px solid rgba(156, 39, 176, 0.08); 
+        background: rgba(156, 39, 176, 0.04); 
+        border: 1px solid rgba(156, 39, 176, 0.1); 
         border-radius: 50%; 
         animation: rise 15s infinite ease-in; 
     }
     @keyframes rise { 
         0% { transform: translateY(0) scale(1) translateX(0); opacity: 0; } 
-        10% { opacity: 0.3; } 
+        10% { opacity: 0.4; } 
         50% { transform: translateY(-600px) scale(1.1) translateX(40px); }
         100% { transform: translateY(-1200px) scale(1.4) translateX(-20px); opacity: 0; } 
     }
@@ -57,7 +58,7 @@ st.markdown("""
     .bubble:nth-child(3) { left: 60%; width: 100px; height: 100px; animation-duration: 22s; animation-delay: 4s; }
     .bubble:nth-child(4) { left: 80%; width: 50px; height: 50px; animation-duration: 15s; animation-delay: 1s; }
 
-    /* PENGATURAN SIDEBAR KOKOH */
+    /* PENGATURAN SIDEBAR AGAR TETAP KOKOH & ELEGAN */
     [data-testid="stSidebar"] { 
         background-color: #0d0d1a !important; 
         border-right: 1px solid #2d2d4a !important; 
@@ -70,7 +71,7 @@ st.markdown("""
     .brand-title { font-family: 'Inter', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
     .brand-subtitle { font-family: 'Inter', sans-serif !important; font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
 
-    /* RADIO BUTTON SIDEBAR */
+    /* MEMPERCANTIK ITEM MENU RADIO BUTTON */
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label { 
         background: rgba(255, 255, 255, 0.02) !important; 
         border: 1px solid rgba(255, 255, 255, 0.05) !important; 
@@ -78,6 +79,7 @@ st.markdown("""
         padding: 12px 20px !important; 
         margin-bottom: 10px !important; 
         color: #94A3B8 !important; 
+        font-weight: 500 !important;
         transition: all 0.2s ease-in-out !important; 
     }
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label:hover {
@@ -89,6 +91,7 @@ st.markdown("""
         background: linear-gradient(90deg, rgba(156, 39, 176, 0.25) 0%, rgba(103, 58, 183, 0.25) 100%) !important; 
         border-color: #9c27b0 !important; 
         color: #ffffff !important;
+        font-weight: 600 !important;
         box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
     }
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] div[data-testid="stRadioButtonDot"] {
@@ -96,10 +99,17 @@ st.markdown("""
         border-color: #9c27b0 !important;
     }
     
-    /* PERBAIKAN SPASI TOMBOL RESET AGAR PAS */
-    .stButton > button {
-        border-radius: 8px !important;
-        margin-top: 5px !important;
+    /* MEMPERCANTIK DESAIN TOMBOL */
+    div.stButton > button {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
+        font-weight: 600 !important;
+        border-radius: 10px !important;
+        transition: all 0.2s ease !important;
+    }
+    
+    /* Pelindung khusus agar teks file uploader tidak bertumpuk */
+    div[data-testid="stFileUploader"] * {
+        line-height: normal !important;
     }
     </style>
     
@@ -247,6 +257,7 @@ def main_system():
                 st.session_state["data_farmasi"] = pd.read_csv(up)
                 st.success("Data CSV berhasil dimuat!")
         
+        # --- PERBAIKAN TOTAL POSISI TOMBOL RESET ---
         if st.session_state["data_farmasi"] is not None:
             st.write("---")
             st.markdown("### 📋 Data Transaksi yang Aktif di Sistem:")
@@ -335,18 +346,14 @@ def main_system():
             if tombol_analisis:
                 try:
                     with st.spinner("Memproses perhitungan data transaksi..."):
-                        # --- PERBAIKAN LOGIKA PARSING DAN PEMBENTUKAN MATRIKS BASKET (100% AMAN DAN AKURAT) ---
                         transaksi_list = []
                         for _, row in df.iterrows():
                             items_str = str(row[sit])
-                            # Pecah item dengan koma, bersihkan whitespace di depan/belakang tiap item
                             list_obat = [item.strip() for item in items_str.split(',') if item.strip()]
                             transaksi_list.append(list_obat)
                         
-                        # Hitung total nota resep asli
                         total_transaksi_asli = len(transaksi_list)
                         
-                        # Buat One-Hot Encoding secara manual dan kokoh tanpa merusak index groupby
                         unique_items = sorted(list(set([item for sublist in transaksi_list for item in sublist])))
                         encoded_data = []
                         for t in transaksi_list:
@@ -358,7 +365,6 @@ def main_system():
                         st.markdown("---")
                         st.subheader("📝 Proses Tracking Algoritma Apriori")
                         
-                        # --- TAHAP 1: PERHITUNGAN SUPPORT ITEMSET ---
                         st.markdown("### **Tahap 1: Pembentukan & Penyaringan Frequent Itemset (Proses Support)**")
                         
                         freq = apriori(basket, min_support=supp, use_colnames=True)
@@ -366,7 +372,6 @@ def main_system():
                         if not freq.empty:
                             freq['jumlah_item'] = freq['itemsets'].apply(lambda x: len(x))
                             freq['Nama_Itemset'] = freq['itemsets'].apply(lambda x: ', '.join(list(x)))
-                            # Perbaikan rumus jumlah transaksi agar sinkron penuh dengan teori support count
                             freq['Jumlah_Transaksi'] = (freq['support'] * total_transaksi_asli).round(0).astype(int)
                             
                             st.write("**1. Tabel Item Tunggal (1-Itemset) yang memenuhi Min. Support:**")
@@ -380,7 +385,6 @@ def main_system():
                             else:
                                 st.info("ℹ️ Tidak ditemukan kombinasi 2-item atau lebih yang memenuhi batas minimum support.")
                             
-                            # --- TAHAP 2: PERHITUNGAN ATURAN ASOSIASI (CONFIDENCE) ---
                             st.markdown("### **Tahap 2: Pembentukan Aturan Asosiasi & Validasi Perhitungan (Proses Confidence)**")
                             
                             rules = association_rules(freq, metric="confidence", min_threshold=0.01)
@@ -396,7 +400,6 @@ def main_system():
                                 if 'antecedent_support' not in rules.columns:
                                     rules['antecedent_support'] = rules['support'] / rules['confidence']
                                 
-                                # Mengoreksi tampilan rumus string agar dosen penguji melihat kejelasan angka pecahan desimalnya
                                 rules['Rumus_Perhitungan_Confidence'] = rules.apply(
                                     lambda r: f"Support({r['antecedents_str']} & {r['consequents_str']}) / Support({r['antecedents_str']}) = {r['support']:.3f} / {r['antecedent_support']:.3f}", axis=1
                                 )
@@ -409,7 +412,6 @@ def main_system():
                                     'confidence': 'Nilai_Confidence_Aktual'
                                 })
                                 
-                                # Sinkronisasi kolom menu agar aman sepenuhnya dari crash/error
                                 rules_display['Jika_Beli_Obat'] = rules_display['Jika_Beli_Obat_(A)']
                                 rules_display['Maka_Beli_Obat'] = rules_display['Maka_Beli_Obat_(B)']
                                 
@@ -441,7 +443,6 @@ def main_system():
             rules = st.session_state["hasil_rules"].copy().reset_index(drop=True)
             rules['Nama_Pola'] = rules['Jika_Beli_Obat'] + " ➔ " + rules['Maka_Beli_Obat']
             
-            # Ambil maksimal 5 data teratas untuk peringkat grafik
             top_5_rules = rules.sort_values(by='Support_Gabungan', ascending=False).head(5).reset_index(drop=True)
             jumlah_pola_lolos = len(top_5_rules)
             
@@ -468,7 +469,6 @@ def main_system():
             fig_bar.update_layout(yaxis={'categoryorder':'total ascending'})
             st.plotly_chart(fig_bar, use_container_width=True)
             
-            # MEMBUAT NO URUT MANUAl YANG AMAN DARI ERROR DOUBLE
             tabel_tampil = top_5_rules[['Nama_Pola', 'Support_Gabungan', 'Nilai_Confidence_Aktual', 'Jumlah_Transaksi_Kombinasi']].copy()
             tabel_tampil.insert(0, 'No', range(1, 1 + len(tabel_tampil)))
             
