@@ -69,7 +69,6 @@ st.markdown("""
     [data-testid="stSidebarResizer"] { display: none !important; }
 
     .brand-box { text-align: center; width: 100%; padding: 25px 0px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
-    /* FIX: Menghapus Efek Neon Menyala agar Minimalis & Formal */
     .brand-title { font-family: 'Inter', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
     .brand-subtitle { font-family: 'Inter', sans-serif !important; font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
 
@@ -99,7 +98,7 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
     }
     
-    /* FIX: Mengubah Warna Bulatan Radio Button Aktif dari Merah Menjadi Ungu Aesthetic */
+    /* Mengubah Warna Bulatan Radio Button Aktif Jadi Ungu Aesthetic */
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] div[data-testid="stRadioButtonDot"] {
         background-color: #9c27b0 !important;
         border-color: #9c27b0 !important;
@@ -120,7 +119,6 @@ st.markdown("""
     }
     </style>
     
-    /* FIX: Menghapus kebocoran teks kode HTML bubble background */
     <div class="bubble-bg">
         <div class="bubble"></div>
         <div class="bubble"></div>
