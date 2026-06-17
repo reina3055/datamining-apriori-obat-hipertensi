@@ -532,7 +532,8 @@ def main_system():
                 nama_obat = item['Nama_Obat']
                 total_jual = item['Total_Beli']
                 
-                if nama_obat in metals if nama_obat in rules_dict:
+                
+                if nama_obat in rules_dict:
                     pasangan = rules_dict[nama_obat]['rekomendasi']
                     conf_pct = rules_dict[nama_obat]['confidence']
                     status_note = f"Top #{top_obat_list.index(item)+1} Laris ({total_jual}x). Paket Apriori: +{pasangan} ({conf_pct}%)"
