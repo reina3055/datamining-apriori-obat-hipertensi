@@ -14,26 +14,24 @@ except ImportError:
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="SI-APO | Premium", page_icon="💜", layout="wide")
 
-# --- 2. CSS MASTER (MENGUNCI SIDEBAR & TAMPILAN) ---
+# --- 2. CSS MASTER (STABIL & AMAN UNTUK LAYOUT) ---
 st.markdown("""
     <style>
-    /* Mengambil Font Premium dari Google Fonts */
+    /* Mengambil Font Premium */
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800&display=swap');
     
-    /* Aplikasi Global Font & Background */
-    * { 
-        font-family: 'Plus Jakarta Sans', sans-serif !important; 
-    }
+    /* Aplikasi Tema Warna & Font Utama */
     .stApp { 
         background-color: #050510; 
-        color: #E2E8F0; 
+        color: #E2E8F0;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
-    /* Mempercantik Font Judul Utama (Headings) */
-    h1, h2, h3, [data-testid="stHeader"] {
+    /* Mempercantik Judul Tanpa Merusak Komponen */
+    h1, h2, h3 {
         font-family: 'Inter', sans-serif !important;
         font-weight: 700 !important;
-        letter-spacing: -0.5px !important;
+        color: #ffffff !important;
     }
     
     /* Animasi Bubble Background */
@@ -43,14 +41,14 @@ st.markdown("""
     }
     .bubble { 
         position: absolute; bottom: -150px; 
-        background: rgba(156, 39, 176, 0.05); 
-        border: 1px solid rgba(156, 39, 176, 0.12); 
+        background: rgba(156, 39, 176, 0.03); 
+        border: 1px solid rgba(156, 39, 176, 0.08); 
         border-radius: 50%; 
         animation: rise 15s infinite ease-in; 
     }
     @keyframes rise { 
         0% { transform: translateY(0) scale(1) translateX(0); opacity: 0; } 
-        10% { opacity: 0.4; } 
+        10% { opacity: 0.3; } 
         50% { transform: translateY(-600px) scale(1.1) translateX(40px); }
         100% { transform: translateY(-1200px) scale(1.4) translateX(-20px); opacity: 0; } 
     }
@@ -59,7 +57,7 @@ st.markdown("""
     .bubble:nth-child(3) { left: 60%; width: 100px; height: 100px; animation-duration: 22s; animation-delay: 4s; }
     .bubble:nth-child(4) { left: 80%; width: 50px; height: 50px; animation-duration: 15s; animation-delay: 1s; }
 
-    /* PENGATURAN SIDEBAR AGAR TETAP KOKOH & ELEGAN */
+    /* PENGATURAN SIDEBAR KOKOH */
     [data-testid="stSidebar"] { 
         background-color: #0d0d1a !important; 
         border-right: 1px solid #2d2d4a !important; 
@@ -72,7 +70,7 @@ st.markdown("""
     .brand-title { font-family: 'Inter', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
     .brand-subtitle { font-family: 'Inter', sans-serif !important; font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
 
-    /* MEMPERCANTIK ITEM MENU RADIO BUTTON */
+    /* RADIO BUTTON SIDEBAR */
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label { 
         background: rgba(255, 255, 255, 0.02) !important; 
         border: 1px solid rgba(255, 255, 255, 0.05) !important; 
@@ -80,42 +78,28 @@ st.markdown("""
         padding: 12px 20px !important; 
         margin-bottom: 10px !important; 
         color: #94A3B8 !important; 
-        font-weight: 500 !important;
         transition: all 0.2s ease-in-out !important; 
     }
-    /* Efek Hover Menu */
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label:hover {
         background: rgba(255, 255, 255, 0.05) !important;
         color: #ffffff !important;
         border-color: rgba(156, 39, 176, 0.3) !important;
     }
-    /* Menu yang Sedang Aktif/Dipilih */
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] { 
         background: linear-gradient(90deg, rgba(156, 39, 176, 0.25) 0%, rgba(103, 58, 183, 0.25) 100%) !important; 
         border-color: #9c27b0 !important; 
         color: #ffffff !important;
-        font-weight: 600 !important;
         box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
     }
-    
-    /* Mengubah Warna Bulatan Radio Button Aktif Jadi Ungu Aesthetic */
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] div[data-testid="stRadioButtonDot"] {
         background-color: #9c27b0 !important;
         border-color: #9c27b0 !important;
     }
     
-    /* MEMPERCANTIK DESAIN TOMBOL (BUTTON) STREAMLIT */
-    div.stButton > button {
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        font-weight: 600 !important;
-        border-radius: 10px !important;
-        transition: all 0.2s ease !important;
-    }
-    
-    /* Mempercantik Tampilan Input Form */
-    div[data-testid="stTextInput"] input {
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
+    /* PERBAIKAN SPASI TOMBOL RESET AGAR PAS */
+    .stButton > button {
         border-radius: 8px !important;
+        margin-top: 5px !important;
     }
     </style>
     
