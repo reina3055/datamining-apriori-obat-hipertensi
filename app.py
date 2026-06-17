@@ -3,7 +3,6 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 import io
-import mysql.connector 
 
 # Library mining
 try:
@@ -14,10 +13,10 @@ except ImportError:
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="SI-APO | Premium", page_icon="💜", layout="wide")
 
-# --- 2. CSS MASTER (STABIL, SIDEBAR NORMAL & STRUK TETAP COURIER) ---
+# --- 2. CSS MASTER (FONT ALAMI STREAMLIT & WARNA PREMIUM) ---
 st.markdown("""
     <style>
-    /* Aplikasi Tema Warna Background Sesuai Gambar */
+    /* Atur Warna Aplikasi Utama */
     .stApp { 
         background-color: #050510; 
         color: #E2E8F0;
@@ -104,7 +103,7 @@ st.markdown("""
     
     <div class="bubble-bg">
         <div class="bubble"></div>
-        <div class="bubble-bg"></div>
+        <div class="bubble"></div>
         <div class="bubble"></div>
         <div class="bubble"></div>
     </div>
@@ -118,28 +117,7 @@ if "hasil_rules" not in st.session_state: st.session_state["hasil_rules"] = None
 if "data_struk" not in st.session_state: st.session_state["data_struk"] = None
 if "counter_resep" not in st.session_state: st.session_state["counter_resep"] = 0
 
-# --- 4. FUNGSI-FUNGSI PENDUKUNG ---
-def ambil_data_dari_mysql():
-    try:
-        conn = mysql.connector.connect(
-            host=st.secrets["mysql"]["host"],
-            port=int(st.secrets["mysql"]["port"]),
-            user=st.secrets["mysql"]["user"],
-            password=st.secrets["mysql"]["password"],
-            database=st.secrets["mysql"]["database"]
-            )
-        query = """
-            SELECT t.no_nota AS `No. Resep`, o.nama_obat AS `Nama Obat`, t.tanggal AS `Tanggal`
-            FROM tb_transaksi t
-            JOIN tb_obat o ON t.id_obat = o.id_obat
-        """
-        df = pd.read_sql(query, conn)
-        conn.close()
-        return df
-    except Exception as e:
-        st.error(f"Gagal terhubung ke database XAMPP: {e}")
-        return None
-
+# --- 4. FUNGSI PENDUKUNG ---
 def tampilkan_struk(dp, do):
     item_rows = ""
     for item in do:
@@ -230,21 +208,12 @@ def main_system():
 
     elif "Data Transaksi" in menu:
         st.subheader("🗄️ Sumber Data Transaksi")
-        sumber_data = st.radio("Pilih Metode Pengambilan Data:", ["Sambungkan ke Database MySQL XAMPP", "Upload File CSV Manual"])
         
-        if sumber_data == "Sambungkan ke Database MySQL XAMPP":
-            if st.button("🔄 Tarik Data Terbaru dari Database"):
-                df_db = ambil_data_dari_mysql()
-                if df_db is not None and not df_db.empty:
-                    st.session_state["data_farmasi"] = df_db
-                    st.success(f"Berhasil menarik {len(df_db)} data dari database lokal!")
-                else:
-                    st.warning("Database kosong atau tidak terhubung dengan benar.")
-        else:
-            up = st.file_uploader("Upload File CSV", type="csv", key="uploader_csv")
-            if up: 
-                st.session_state["data_farmasi"] = pd.read_csv(up)
-                st.success("Data CSV berhasil dimuat!")
+        # Murni menggunakan file uploader tanpa gangguan pilihan radio XAMPP lokal
+        up = st.file_uploader("Upload File CSV Manual", type="csv", key="uploader_csv")
+        if up: 
+            st.session_state["data_farmasi"] = pd.read_csv(up)
+            st.success("Data CSV berhasil dimuat ke dalam sistem cloud!")
         
         if st.session_state["data_farmasi"] is not None:
             st.write("---")
@@ -267,7 +236,7 @@ def main_system():
             sid = c1.selectbox("Pilih Kolom ID (No. Resep/Transaksi)", df.columns.tolist(), index=0)
             sit = c2.selectbox("Pilih Kolom Obat", df.columns.tolist(), index=1)
             
-            # --- DETEKSI BULAN SECARA AKURAT DARI DATA YANG DI-UPLOAD ---
+            # --- DETEKSI BULAN SECARA AKURAT ---
             nama_bulan_terdeteksi = "Januari"
             kolom_tgl = [c for c in df.columns if 'tgl' in c.lower() or 'tanggal' in c.lower()]
             if kolom_tgl:
@@ -286,7 +255,7 @@ def main_system():
                 except:
                     pass
 
-            # --- KUNCI PARAMETER PASTI & BERBEDA TIAP BULAN ---
+            # --- KUNCI PARAMETER PASTI TIAP BULAN ---
             database_parameter_bulanan = {
                 "Januari":   {"support": 0.05, "confidence": 0.40},
                 "Februari":  {"support": 0.06, "confidence": 0.45},
@@ -332,7 +301,6 @@ def main_system():
                 """, unsafe_allow_html=True)
                 tombol_analisis = st.button("❌ Analisis Terkunci (Kembalikan Parameter)", disabled=True)
             
-            # --- PROSES MINING STEP BY STEP ---
             if tombol_analisis:
                 try:
                     with st.spinner("Memproses perhitungan data transaksi..."):
@@ -354,7 +322,6 @@ def main_system():
                         
                         st.markdown("---")
                         st.subheader("📝 Proses Tracking Algoritma Apriori")
-                        
                         st.markdown("### **Tahap 1: Pembentukan & Penyaringan Frequent Itemset (Proses Support)**")
                         
                         freq = apriori(basket, min_support=supp, use_colnames=True)
@@ -376,7 +343,6 @@ def main_system():
                                 st.info("ℹ️ Tidak ditemukan kombinasi 2-item atau lebih yang memenuhi batas minimum support.")
                             
                             st.markdown("### **Tahap 2: Pembentukan Aturan Asosiasi & Validasi Perhitungan (Proses Confidence)**")
-                            
                             rules = association_rules(freq, metric="confidence", min_threshold=0.01)
                             
                             if not rules.empty:
@@ -442,7 +408,6 @@ def main_system():
             st.plotly_chart(fig_pie, use_container_width=True)
             
             st.write("---")
-            
             st.subheader(f"🏆 Top {jumlah_pola_lolos} Kombinasi Transaksi Terbanyak")
             
             fig_bar = px.bar(
@@ -461,7 +426,6 @@ def main_system():
             
             tabel_tampil = top_5_rules[['Nama_Pola', 'Support_Gabungan', 'Nilai_Confidence_Aktual', 'Jumlah_Transaksi_Kombinasi']].copy()
             tabel_tampil.insert(0, 'No', range(1, 1 + len(tabel_tampil)))
-            
             st.dataframe(tabel_tampil, use_container_width=True, hide_index=True)
         else: 
             st.warning("Jalankan analisis dulu di menu utama!")
@@ -532,7 +496,6 @@ def main_system():
                 nama_obat = item['Nama_Obat']
                 total_jual = item['Total_Beli']
                 
-                
                 if nama_obat in rules_dict:
                     pasangan = rules_dict[nama_obat]['rekomendasi']
                     conf_pct = rules_dict[nama_obat]['confidence']
@@ -562,7 +525,6 @@ def main_system():
                     </tr>
                 """
             
-            # PERBAIKAN: Disematkan class khusus agar struk di-render aman menggunakan Courier New
             html_struk_arsip = f"""
             <div class="kunci-font-struk" style="background-color:#fff; padding:25px; border:1px solid #ccc; width:340px; margin:10px auto; border-radius:5px; box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
                 <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:10px; margin-bottom:10px;">
