@@ -69,7 +69,8 @@ st.markdown("""
     [data-testid="stSidebarResizer"] { display: none !important; }
 
     .brand-box { text-align: center; width: 100%; padding: 25px 0px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
-    .brand-title { font-family: 'Inter', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; text-shadow: 0 0 15px rgba(156, 39, 176, 0.6); }
+    /* FIX: Menghapus Efek Neon Menyala agar Minimalis & Formal */
+    .brand-title { font-family: 'Inter', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
     .brand-subtitle { font-family: 'Inter', sans-serif !important; font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
 
     /* MEMPERCANTIK ITEM MENU RADIO BUTTON */
@@ -98,6 +99,12 @@ st.markdown("""
         box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
     }
     
+    /* FIX: Mengubah Warna Bulatan Radio Button Aktif dari Merah Menjadi Ungu Aesthetic */
+    div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] div[data-testid="stRadioButtonDot"] {
+        background-color: #9c27b0 !important;
+        border-color: #9c27b0 !important;
+    }
+    
     /* MEMPERCANTIK DESAIN TOMBOL (BUTTON) STREAMLIT */
     div.stButton > button {
         font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -113,11 +120,14 @@ st.markdown("""
     }
     </style>
     
+    /* FIX: Menghapus kebocoran teks kode HTML bubble background */
     <div class="bubble-bg">
-        <div class="bubble"></div><div class="bubble-bg"></div>
-        <div class="bubble"></div><div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
+        <div class="bubble"></div>
     </div>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # --- 3. SESSION STATE ---
 if "logged_in" not in st.session_state: st.session_state["logged_in"] = False
@@ -261,6 +271,9 @@ def main_system():
             st.dataframe(st.session_state["data_farmasi"], use_container_width=True)
             if st.button("🗑️ Reset Data"):
                 st.session_state["data_farmasi"] = None
+                st.session_state["hasil_rules"] = None
+                st.session_state["data_struk"] = None
+                st.success("Semua data di sistem berhasil dibersihkan!")
                 st.rerun()
 
     elif "Proses Apriori" in menu:
@@ -480,6 +493,7 @@ def main_system():
             st.dataframe(tabel_tampil, use_container_width=True, hide_index=True)
         else: 
             st.warning("Jalankan analisis dulu di menu utama!")
+            
     elif "Cetak Struk" in menu:
         from fpdf import FPDF
         st.subheader("🧾 Penerbitan Struk Lembar Arsip Internal Apotek")
@@ -613,7 +627,6 @@ def main_system():
                 pdf.ln(5)
                 
                 pdf.set_font("Helvetica", "", 10)
-                # PERBAIKAN: Menghapus spasi gaib (\xa0) agar aman diubah ke latin-1
                 pdf.cell(0, 6, f"ID Dokumen   : {dp['no_resep']}", ln=True)
                 pdf.cell(0, 6, f"Tgl Cetak    : {dp['tanggal']}", ln=True)
                 pdf.cell(0, 6, f"Otoritas     : {dp['nama']}", ln=True)
@@ -630,13 +643,11 @@ def main_system():
                     pdf.set_font("Helvetica", "B", 10)
                     pdf.cell(0, 6, f"- {item['nama']}", ln=True)
                     pdf.set_font("Helvetica", "", 9)
-                    pdf.cell(0, 5, f"  Volume Transaksi: {item['qty']}", ln=True)
+                    pdf.cell(0, 5, f"   Volume Transaksi: {item['qty']}", ln=True)
                     pdf.set_font("Helvetica", "I", 9)
-                    # Mengamankan catatan agar tidak ada karakter non-latin-1 terproses
-                    pdf.cell(0, 5, f"  Catatan: {str(item['aturan']).encode('latin-1', 'ignore').decode('latin-1')}", ln=True)
+                    pdf.cell(0, 5, f"   Catatan: {str(item['aturan']).encode('latin-1', 'ignore').decode('latin-1')}", ln=True)
                     pdf.ln(2)
                 
-                # --- PERBAIKAN TOTAL PENANGANAN OUTPUT PDF ---
                 raw_pdf = pdf.output(dest='S')
                 if isinstance(raw_pdf, str):
                     pdf_bytes = bytes(raw_pdf, 'latin-1')
@@ -678,7 +689,6 @@ def main_system():
             rules_to_export['Jumlah_Transaksi_Kombinasi'] = (rules_to_export['Support_Gabungan'] * total_transaksi_aktif).round(0).astype(int)
             sumber_data = "Data Historis Transaksi (Januari - Maret)"
 
-        # Standarisasi kolom untuk diexport
         if 'Jika_Beli_Obat' not in rules_to_export.columns and 'Jika_Beli_Obat_(A)' in rules_to_export.columns:
             rules_to_export['Jika_Beli_Obat'] = rules_to_export['Jika_Beli_Obat_(A)']
             rules_to_export['Maka_Beli_Obat'] = rules_to_export['Maka_Beli_Obat_(B)']
