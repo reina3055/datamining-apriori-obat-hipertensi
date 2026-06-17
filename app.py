@@ -13,23 +13,27 @@ except ImportError:
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="SI-APO | Premium", page_icon="💜", layout="wide")
 
-# --- 2. CSS MASTER (FONT ALAMI STREAMLIT & WARNA PREMIUM) ---
+# --- 2. CSS MASTER (PAKSA FONT MODERN SANS-SERIF DI SEMUA ELEMEN) ---
 st.markdown("""
     <style>
+    /* Mengambil Font Modern dari Google Fonts */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+    
+    /* Terapkan Font Jakarta Sans ke Seluruh Aplikasi Termasuk Struk & Sidebar */
+    .stApp, [data-testid="stSidebar"], [data-testid="stSidebarUserContent"], .kunci-font-modern, .kunci-font-modern * { 
+        font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
+    }
+    
     /* Atur Warna Aplikasi Utama */
     .stApp { 
         background-color: #050510; 
         color: #E2E8F0;
     }
     
-    /* KHUSUS MEMBUNGKUS STRUK BIAR TETAP FONT COURIER KASIR ASLI */
-    .kunci-font-struk, .kunci-font-struk * {
-        font-family: 'Courier New', Courier, monospace !important;
-    }
-    
     /* Mempercantik Judul Utama */
     h1, h2, h3 {
         color: #ffffff !important;
+        font-weight: 700 !important;
     }
     
     /* Animasi Bubble Background */
@@ -123,35 +127,35 @@ def tampilkan_struk(dp, do):
     for item in do:
         item_rows += f"""
             <tr>
-                <td colspan="2" style="padding-top:8px; font-weight:bold; color:#000;">{item['nama']}</td>
+                <td colspan="2" style="padding-top:8px; font-weight:bold; color:#000; font-size:14px;">{item['nama']}</td>
             </tr>
             <tr>
-                <td style="color:#000; font-size:11px;">{item['qty']} x (Rp 0)</td>
-                <td style="text-align:right; color:#000; font-size:11px;">-</td>
+                <td style="color:#555; font-size:12px;">{item['qty']} x (Rp 0)</td>
+                <td style="text-align:right; color:#555; font-size:12px;">-</td>
             </tr>
             <tr>
-                <td colspan="2" style="font-size:10px; font-style:italic; color:#666; padding-bottom:5px;">Aturan: {item['aturan']}</td>
+                <td colspan="2" style="font-size:11px; font-style:italic; color:#666; padding-bottom:5px;">Aturan: {item['aturan']}</td>
             </tr>
         """
     html_struk = f"""
-    <div class="kunci-font-struk" style="background-color:#fff; padding:20px; border:1px solid #ccc; width:300px; margin:10px auto; border-radius:5px; box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
-        <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:10px; margin-bottom:10px;">
-            <h3 style="margin:0; font-size:16px; color:#000;">APOTEK NANA</h3>
-            <p style="font-size:10px; margin:0; color:#000;">Jl. Bunga Lily No. 30, Bekasi</p>
+    <div class="kunci-font-modern" style="background-color:#fff; padding:25px; border:1px solid #ccc; width:340px; margin:10px auto; border-radius:8px; box-shadow:2px 2px 10px rgba(0,0,0,0.05);">
+        <div style="text-align:center; border-bottom:1px dashed #ccc; padding-bottom:12px; margin-bottom:12px;">
+            <h3 style="margin:0; font-size:18px; color:#000; font-weight:800; letter-spacing:0.5px;">APOTEK NANA</h3>
+            <p style="font-size:11px; margin:4px 0 0 0; color:#555;">Jl. Bunga Lily No. 30, Bekasi</p>
         </div>
-        <table style="width:100%; font-size:11px; color:#000; margin-bottom:10px;">
-            <tr><td>No. Resep</td><td>: {dp['no_resep']}</td></tr>
-            <tr><td>Tanggal</td><td>: {dp['tanggal']}</td></tr>
-            <tr><td>Pasien</td><td>: {dp['nama']}</td></tr>
+        <table style="width:100%; font-size:12px; color:#222; margin-bottom:12px; line-height:1.6;">
+            <tr><td style="width:90px; color:#666;">No. Resep</td><td>: {dp['no_resep']}</td></tr>
+            <tr><td style="color:#666;">Tanggal</td><td>: {dp['tanggal']}</td></tr>
+            <tr><td style="color:#666;">Pasien</td><td>: {dp['nama']}</td></tr>
         </table>
-        <div style="border-top:1px dashed #000; padding-top:10px;">
+        <div style="border-top:1px dashed #ccc; padding-top:8px;">
             <table style="width:100%; border-collapse:collapse;">
                 {item_rows}
             </table>
         </div>
-        <div style="text-align:center; border-top:1px dashed #000; margin-top:10px; padding-top:10px; font-size:11px; color:#000;">
-            <p style="margin:0;">TERIMA KASIH</p>
-            <p style="margin:0;">SEMOGA LEKAS SEMBUH</p>
+        <div style="text-align:center; border-top:1px dashed #ccc; margin-top:15px; padding-top:12px; font-size:12px; color:#000; font-weight:600; line-height:1.4;">
+            <p style="margin:0; letter-spacing:0.5px;">TERIMA KASIH</p>
+            <p style="margin:2px 0 0 0; letter-spacing:0.5px;">SEMOGA LEKAS SEMBUH</p>
         </div>
     </div>
     """
@@ -209,7 +213,6 @@ def main_system():
     elif "Data Transaksi" in menu:
         st.subheader("🗄️ Sumber Data Transaksi")
         
-        # Murni menggunakan file uploader tanpa gangguan pilihan radio XAMPP lokal
         up = st.file_uploader("Upload File CSV Manual", type="csv", key="uploader_csv")
         if up: 
             st.session_state["data_farmasi"] = pd.read_csv(up)
@@ -514,38 +517,38 @@ def main_system():
             for item in do:
                 item_rows += f"""
                     <tr>
-                        <td colspan="2" style="padding-top:8px; font-weight:bold; color:#000; font-size:13px;">{item['nama']}</td>
+                        <td colspan="2" style="padding-top:8px; font-weight:bold; color:#000; font-size:14px;">{item['nama']}</td>
                     </tr>
                     <tr>
-                        <td style="color:#222; font-size:11px;">Volume Gerak Data:</td>
-                        <td style="text-align:right; color:#9c27b0; font-weight:bold; font-size:11px;">{item['qty']}</td>
+                        <td style="color:#555; font-size:12px;">Volume Gerak Data:</td>
+                        <td style="text-align:right; color:#9c27b0; font-weight:bold; font-size:12px;">{item['qty']}</td>
                     </tr>
                     <tr>
-                        <td colspan="2" style="font-size:10px; font-style:italic; color:#555; padding-bottom:8px; border-bottom:1px dashed #eee;">💡 {item['aturan']}</td>
+                        <td colspan="2" style="font-size:11px; font-style:italic; color:#666; padding-bottom:8px; border-bottom:1px dashed #eee;">💡 {item['aturan']}</td>
                     </tr>
                 """
             
             html_struk_arsip = f"""
-            <div class="kunci-font-struk" style="background-color:#fff; padding:25px; border:1px solid #ccc; width:340px; margin:10px auto; border-radius:5px; box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
-                <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:10px; margin-bottom:10px;">
-                    <h3 style="margin:0; font-size:16px; color:#000;">APOTEK NANA</h3>
-                    <p style="font-size:10px; margin:3px 0 0 0; color:#000;">ARSIP REFERENSI KENDALI STOK</p>
+            <div class="kunci-font-modern" style="background-color:#fff; padding:25px; border:1px solid #ccc; width:340px; margin:10px auto; border-radius:8px; box-shadow:2px 2px 10px rgba(0,0,0,0.05);">
+                <div style="text-align:center; border-bottom:1px dashed #ccc; padding-bottom:12px; margin-bottom:12px;">
+                    <h3 style="margin:0; font-size:18px; color:#000; font-weight:800; letter-spacing:0.5px;">APOTEK NANA</h3>
+                    <p style="font-size:11px; margin:4px 0 0 0; color:#555;">ARSIP REFERENSI KENDALI STOK</p>
                 </div>
-                <table style="width:100%; font-size:11px; color:#000; margin-bottom:10px;">
-                    <tr><td>ID Dokumen</td><td>: {dp['no_resep']}</td></tr>
-                    <tr><td>Tgl Cetak</td><td>: {dp['tanggal']}</td></tr>
-                    <tr><td>Otoritas</td><td>: {dp['nama']}</td></tr>
-                    <tr><td>Periode Data</td><td>: {nama_bulan_aktif.upper()}</td></tr>
+                <table style="width:100%; font-size:12px; color:#222; margin-bottom:12px; line-height:1.6;">
+                    <tr><td style="width:90px; color:#666;">ID Dokumen</td><td>: {dp['no_resep']}</td></tr>
+                    <tr><td style="color:#666;">Tgl Cetak</td><td>: {dp['tanggal']}</td></tr>
+                    <tr><td style="color:#666;">Otoritas</td><td>: {dp['nama']}</td></tr>
+                    <tr><td style="color:#666;">Periode Data</td><td>: {nama_bulan_aktif.upper()}</td></tr>
                 </table>
-                <div style="border-top:1px dashed #000; padding-top:10px;">
-                    <p style="margin:0 0 10px 0; font-size:11px; font-weight:bold; color:#000; text-align:center;">--- DAFTAR PERFORMA OBAT TERBAIK ---</p>
+                <div style="border-top:1px dashed #ccc; padding-top:8px;">
+                    <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold; color:#000; text-align:center;">--- DAFTAR PERFORMA OBAT TERBAIK ---</p>
                     <table style="width:100%; border-collapse:collapse;">
                         {item_rows}
                     </table>
                 </div>
-                <div style="text-align:center; border-top:1px dashed #000; margin-top:15px; padding-top:10px; font-size:10px; color:#000;">
-                    <p style="margin:0; font-weight:bold;">REKOMENDASI PENGADAAN GUDANG</p>
-                    <p style="margin:3px 0 0 0; font-style:italic;">SI-APO Premium System v1.0</p>
+                <div style="text-align:center; border-top:1px dashed #ccc; margin-top:15px; padding-top:12px; font-size:12px; color:#000; font-weight:600; line-height:1.4;">
+                    <p style="margin:0;">REKOMENDASI PENGADAAN GUDANG</p>
+                    <p style="margin:2px 0 0 0; font-style:italic; color:#555; font-size:11px;">SI-APO Premium System v1.0</p>
                 </div>
             </div>
             """
