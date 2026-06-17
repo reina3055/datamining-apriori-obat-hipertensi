@@ -14,24 +14,17 @@ except ImportError:
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="SI-APO | Premium", page_icon="💜", layout="wide")
 
-# --- 2. CSS MASTER (PREMIUM, STABIL & ANTI-BENTROK) ---
+# --- 2. CSS MASTER (STABIL, BALIK KE FONT ASLI, WARNA TETAP UNGU PREMIUM) ---
 st.markdown("""
     <style>
-    /* Mengambil Font Premium dari Google Fonts */
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;600;700;800&display=swap');
-    
-    /* Aplikasi Tema Warna & Font Utama */
+    /* Aplikasi Tema Warna Background Sesuai Gambar */
     .stApp { 
         background-color: #050510; 
         color: #E2E8F0;
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
     
     /* Mempercantik Judul Utama */
-    h1, h2, h3, [data-testid="stHeader"] {
-        font-family: 'Inter', sans-serif !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.5px !important;
+    h1, h2, h3 {
         color: #ffffff !important;
     }
     
@@ -68,10 +61,10 @@ st.markdown("""
     [data-testid="stSidebarResizer"] { display: none !important; }
 
     .brand-box { text-align: center; width: 100%; padding: 25px 0px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
-    .brand-title { font-family: 'Inter', sans-serif !important; font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
-    .brand-subtitle { font-family: 'Inter', sans-serif !important; font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
+    .brand-title { font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
+    .brand-subtitle { font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
 
-    /* MEMPERCANTIK ITEM MENU RADIO BUTTON */
+    /* MEMPERCANTIK ITEM MENU RADIO BUTTON SIDEBAR */
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label { 
         background: rgba(255, 255, 255, 0.02) !important; 
         border: 1px solid rgba(255, 255, 255, 0.05) !important; 
@@ -79,7 +72,6 @@ st.markdown("""
         padding: 12px 20px !important; 
         margin-bottom: 10px !important; 
         color: #94A3B8 !important; 
-        font-weight: 500 !important;
         transition: all 0.2s ease-in-out !important; 
     }
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label:hover {
@@ -91,7 +83,6 @@ st.markdown("""
         background: linear-gradient(90deg, rgba(156, 39, 176, 0.25) 0%, rgba(103, 58, 183, 0.25) 100%) !important; 
         border-color: #9c27b0 !important; 
         color: #ffffff !important;
-        font-weight: 600 !important;
         box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
     }
     div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] div[data-testid="stRadioButtonDot"] {
@@ -99,23 +90,16 @@ st.markdown("""
         border-color: #9c27b0 !important;
     }
     
-    /* MEMPERCANTIK DESAIN TOMBOL */
+    /* DESAIN TOMBOL */
     div.stButton > button {
-        font-family: 'Plus Jakarta Sans', sans-serif !important;
-        font-weight: 600 !important;
         border-radius: 10px !important;
         transition: all 0.2s ease !important;
-    }
-    
-    /* Pelindung khusus agar teks file uploader tidak bertumpuk */
-    div[data-testid="stFileUploader"] * {
-        line-height: normal !important;
     }
     </style>
     
     <div class="bubble-bg">
         <div class="bubble"></div>
-        <div class="bubble"></div>
+        <div class="bubble-bg"></div>
         <div class="bubble"></div>
         <div class="bubble"></div>
     </div>
@@ -252,13 +236,11 @@ def main_system():
                 else:
                     st.warning("Database kosong atau tidak terhubung dengan benar.")
         else:
-            # Mengunci key uploader agar bisa di-clear fisiknya lewat session state
             up = st.file_uploader("Upload File CSV", type="csv", key="uploader_csv")
             if up: 
                 st.session_state["data_farmasi"] = pd.read_csv(up)
                 st.success("Data CSV berhasil dimuat!")
         
-        # --- PERBAIKAN TOTAL POSISI & FUNGSI TOMBOL RESET ---
         if st.session_state["data_farmasi"] is not None:
             st.write("---")
             st.markdown("### 📋 Data Transaksi yang Aktif di Sistem:")
@@ -267,11 +249,11 @@ def main_system():
                 st.session_state["data_farmasi"] = None
                 st.session_state["hasil_rules"] = None
                 st.session_state["data_struk"] = None
-                # Menghapus cache file di browser uploader secara fisik biar kembali kosong
                 if "uploader_csv" in st.session_state:
                     del st.session_state["uploader_csv"]
                 st.success("Semua data di sistem berhasil dibersihkan!")
                 st.rerun()
+
     elif "Proses Apriori" in menu:
         if st.session_state["data_farmasi"] is not None:
             df = st.session_state["data_farmasi"]
