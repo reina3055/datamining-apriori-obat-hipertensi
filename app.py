@@ -245,21 +245,12 @@ def main_system():
 
     elif "Data Transaksi" in menu:
         st.subheader("🗄️ Sumber Data Transaksi")
-        sumber_data = st.radio("Pilih Metode Pengambilan Data:", ["Sambungkan ke Database MySQL XAMPP", "Upload File CSV Manual"])
         
-        if sumber_data == "Sambungkan ke Database MySQL XAMPP":
-            if st.button("🔄 Tarik Data Terbaru dari Database"):
-                df_db = ambil_data_dari_mysql()
-                if df_db is not None and not df_db.empty:
-                    st.session_state["data_farmasi"] = df_db
-                    st.success(f"Berhasil menarik {len(df_db)} data dari database lokal!")
-                else:
-                    st.warning("Database kosong atau tidak terhubung dengan benar.")
-        else:
-            up = st.file_uploader("Upload File CSV Manual", type="csv", key="uploader_csv")
-            if up: 
-                st.session_state["data_farmasi"] = pd.read_csv(up)
-                st.success("Data CSV berhasil dimuat!")
+        # Jaminan 100% langsung upload CSV tanpa ada tombol pilihan XAMPP lagi
+        up = st.file_uploader("Upload File CSV Manual", type="csv", key="uploader_csv")
+        if up: 
+            st.session_state["data_farmasi"] = pd.read_csv(up)
+            st.success("Data CSV berhasil dimuat!")
         
         if st.session_state["data_farmasi"] is not None:
             st.write("---")
