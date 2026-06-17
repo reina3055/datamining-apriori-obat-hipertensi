@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime
 import plotly.express as px
 import io
+import mysql.connector 
 
 # Library mining
 try:
@@ -13,7 +14,7 @@ except ImportError:
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="SI-APO | Premium", page_icon="💜", layout="wide")
 
-# --- 2. CSS MASTER (PAKSA FONT MODERN SANS-SERIF DI SEMUA ELEMEN) ---
+# --- 2. CSS MASTER (MENYIMETRISKAN SIDEBAR & PAKSA FONT MODERN SANS-SERIF) ---
 st.markdown("""
     <style>
     /* Mengambil Font Modern dari Google Fonts */
@@ -23,19 +24,75 @@ st.markdown("""
     .stApp, [data-testid="stSidebar"], [data-testid="stSidebarUserContent"], .kunci-font-modern, .kunci-font-modern * { 
         font-family: 'Plus Jakarta Sans', -apple-system, sans-serif !important;
     }
-    
+
     /* Atur Warna Aplikasi Utama */
     .stApp { 
         background-color: #050510; 
         color: #E2E8F0;
     }
     
+    /* LOGIKA RATA TENGAH UNTUK MENU SIDEBAR (SESUAI GAMBAR REINA) */
+    div[role="radiogroup"] {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    div[role="radiogroup"] label { 
+        background: rgba(255, 255, 255, 0.02) !important; 
+        border: 1px solid rgba(255, 255, 255, 0.05) !important; 
+        border-radius: 12px !important; 
+        padding: 12px 0px !important; 
+        width: 250px !important; 
+        display: flex !important;
+        justify-content: center !important; /* TEKS JADI DI TENGAH-TENGAH KOTAK */
+        text-align: center !important;
+        color: #94A3B8 !important; 
+        transition: all 0.2s ease-in-out !important; 
+    }
+
+    /* Menghilangkan titik radio (dot) agar tampilan menu bersih seperti tombol kotak */
+    div[data-testid="stRadioButtonDot"] {
+        display: none !important;
+    }
+
+    /* Saat menu dipilih (Active) */
+    div[role="radiogroup"] [aria-checked="true"] { 
+        background: linear-gradient(90deg, rgba(156, 39, 176, 0.3) 0%, rgba(103, 58, 183, 0.3) 100%) !important; 
+        border-color: #9c27b0 !important; 
+        color: #ffffff !important;
+        font-weight: 700 !important;
+    }
+
+    /* PENGATURAN SIDEBAR UMUM */
+    [data-testid="stSidebar"] { 
+        background-color: #0d0d1a !important; 
+        border-right: 1px solid #2d2d4a !important; 
+        min-width: 320px !important; 
+        max-width: 320px !important;
+    }
+    [data-testid="stSidebarResizer"] { display: none !important; }
+
+    .brand-box { text-align: center; width: 100%; padding: 25px 0px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
+    .brand-title { font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
+    .brand-subtitle { font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
+
     /* Mempercantik Judul Utama */
     h1, h2, h3 {
         color: #ffffff !important;
         font-weight: 700 !important;
     }
     
+    /* Tombol logout agar rata tengah juga */
+    div.stButton > button {
+        width: 250px !important;
+        display: block !important;
+        margin: 0 auto !important;
+        border-radius: 10px !important;
+        transition: all 0.2s ease !important;
+    }
+
     /* Animasi Bubble Background */
     .bubble-bg { 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
@@ -58,56 +115,11 @@ st.markdown("""
     .bubble:nth-child(2) { left: 35%; width: 40px; height: 40px; animation-duration: 18s; animation-delay: 2s; }
     .bubble:nth-child(3) { left: 60%; width: 100px; height: 100px; animation-duration: 22s; animation-delay: 4s; }
     .bubble:nth-child(4) { left: 80%; width: 50px; height: 50px; animation-duration: 15s; animation-delay: 1s; }
-
-    /* PENGATURAN SIDEBAR AGAR TETAP KOKOH & ELEGAN */
-    [data-testid="stSidebar"] { 
-        background-color: #0d0d1a !important; 
-        border-right: 1px solid #2d2d4a !important; 
-        min-width: 320px !important; 
-        max-width: 320px !important;
-    }
-    [data-testid="stSidebarResizer"] { display: none !important; }
-
-    .brand-box { text-align: center; width: 100%; padding: 25px 0px; border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 20px; }
-    .brand-title { font-size: 34px !important; font-weight: 800 !important; letter-spacing: 4px !important; color: #ffffff !important; margin: 0; }
-    .brand-subtitle { font-size: 11px !important; letter-spacing: 2px !important; color: #b39ddb !important; font-weight: 600 !important; text-transform: uppercase !important; margin-top: 5px; }
-
-    /* MEMPERCANTIK ITEM MENU RADIO BUTTON SIDEBAR */
-    div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label { 
-        background: rgba(255, 255, 255, 0.02) !important; 
-        border: 1px solid rgba(255, 255, 255, 0.05) !important; 
-        border-radius: 12px !important; 
-        padding: 12px 20px !important; 
-        margin-bottom: 10px !important; 
-        color: #94A3B8 !important; 
-        transition: all 0.2s ease-in-out !important; 
-    }
-    div[data-testid="stSidebarUserContent"] div[role="radiogroup"] label:hover {
-        background: rgba(255, 255, 255, 0.05) !important;
-        color: #ffffff !important;
-        border-color: rgba(156, 39, 176, 0.3) !important;
-    }
-    div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] { 
-        background: linear-gradient(90deg, rgba(156, 39, 176, 0.25) 0%, rgba(103, 58, 183, 0.25) 100%) !important; 
-        border-color: #9c27b0 !important; 
-        color: #ffffff !important;
-        box-shadow: 0 4px 12px rgba(156, 39, 176, 0.15);
-    }
-    div[data-testid="stSidebarUserContent"] div[role="radiogroup"] [aria-checked="true"] div[data-testid="stRadioButtonDot"] {
-        background-color: #9c27b0 !important;
-        border-color: #9c27b0 !important;
-    }
-    
-    /* DESAIN TOMBOL */
-    div.stButton > button {
-        border-radius: 10px !important;
-        transition: all 0.2s ease !important;
-    }
     </style>
     
     <div class="bubble-bg">
         <div class="bubble"></div>
-        <div class="bubble"></div>
+        <div class="bubble-bg"></div>
         <div class="bubble"></div>
         <div class="bubble"></div>
     </div>
@@ -121,7 +133,28 @@ if "hasil_rules" not in st.session_state: st.session_state["hasil_rules"] = None
 if "data_struk" not in st.session_state: st.session_state["data_struk"] = None
 if "counter_resep" not in st.session_state: st.session_state["counter_resep"] = 0
 
-# --- 4. FUNGSI PENDUKUNG ---
+# --- 4. FUNGSI-FUNGSI PENDUKUNG ---
+def ambil_data_dari_mysql():
+    try:
+        conn = mysql.connector.connect(
+            host=st.secrets["mysql"]["host"],
+            port=int(st.secrets["mysql"]["port"]),
+            user=st.secrets["mysql"]["user"],
+            password=st.secrets["mysql"]["password"],
+            database=st.secrets["mysql"]["database"]
+            )
+        query = """
+            SELECT t.no_nota AS `No. Resep`, o.nama_obat AS `Nama Obat`, t.tanggal AS `Tanggal`
+            FROM tb_transaksi t
+            JOIN tb_obat o ON t.id_obat = o.id_obat
+        """
+        df = pd.read_sql(query, conn)
+        conn.close()
+        return df
+    except Exception as e:
+        st.error(f"Gagal terhubung ke database XAMPP: {e}")
+        return None
+
 def tampilkan_struk(dp, do):
     item_rows = ""
     for item in do:
@@ -212,11 +245,21 @@ def main_system():
 
     elif "Data Transaksi" in menu:
         st.subheader("🗄️ Sumber Data Transaksi")
+        sumber_data = st.radio("Pilih Metode Pengambilan Data:", ["Sambungkan ke Database MySQL XAMPP", "Upload File CSV Manual"])
         
-        up = st.file_uploader("Upload File CSV Manual", type="csv", key="uploader_csv")
-        if up: 
-            st.session_state["data_farmasi"] = pd.read_csv(up)
-            st.success("Data CSV berhasil dimuat ke dalam sistem cloud!")
+        if sumber_data == "Sambungkan ke Database MySQL XAMPP":
+            if st.button("🔄 Tarik Data Terbaru dari Database"):
+                df_db = ambil_data_dari_mysql()
+                if df_db is not None and not df_db.empty:
+                    st.session_state["data_farmasi"] = df_db
+                    st.success(f"Berhasil menarik {len(df_db)} data dari database lokal!")
+                else:
+                    st.warning("Database kosong atau tidak terhubung dengan benar.")
+        else:
+            up = st.file_uploader("Upload File CSV Manual", type="csv", key="uploader_csv")
+            if up: 
+                st.session_state["data_farmasi"] = pd.read_csv(up)
+                st.success("Data CSV berhasil dimuat!")
         
         if st.session_state["data_farmasi"] is not None:
             st.write("---")
@@ -239,7 +282,7 @@ def main_system():
             sid = c1.selectbox("Pilih Kolom ID (No. Resep/Transaksi)", df.columns.tolist(), index=0)
             sit = c2.selectbox("Pilih Kolom Obat", df.columns.tolist(), index=1)
             
-            # --- DETEKSI BULAN SECARA AKURAT ---
+            # --- DETEKSI BULAN SECARA AKURAT DARI DATA YANG DI-UPLOAD ---
             nama_bulan_terdeteksi = "Januari"
             kolom_tgl = [c for c in df.columns if 'tgl' in c.lower() or 'tanggal' in c.lower()]
             if kolom_tgl:
@@ -258,7 +301,7 @@ def main_system():
                 except:
                     pass
 
-            # --- KUNCI PARAMETER PASTI TIAP BULAN ---
+            # --- KUNCI PARAMETER PASTI & BERBEDA TIAP BULAN ---
             database_parameter_bulanan = {
                 "Januari":   {"support": 0.05, "confidence": 0.40},
                 "Februari":  {"support": 0.06, "confidence": 0.45},
@@ -304,6 +347,7 @@ def main_system():
                 """, unsafe_allow_html=True)
                 tombol_analisis = st.button("❌ Analisis Terkunci (Kembalikan Parameter)", disabled=True)
             
+            # --- PROSES MINING STEP BY STEP ---
             if tombol_analisis:
                 try:
                     with st.spinner("Memproses perhitungan data transaksi..."):
@@ -325,6 +369,7 @@ def main_system():
                         
                         st.markdown("---")
                         st.subheader("📝 Proses Tracking Algoritma Apriori")
+                        
                         st.markdown("### **Tahap 1: Pembentukan & Penyaringan Frequent Itemset (Proses Support)**")
                         
                         freq = apriori(basket, min_support=supp, use_colnames=True)
@@ -346,6 +391,7 @@ def main_system():
                                 st.info("ℹ️ Tidak ditemukan kombinasi 2-item atau lebih yang memenuhi batas minimum support.")
                             
                             st.markdown("### **Tahap 2: Pembentukan Aturan Asosiasi & Validasi Perhitungan (Proses Confidence)**")
+                            
                             rules = association_rules(freq, metric="confidence", min_threshold=0.01)
                             
                             if not rules.empty:
@@ -411,6 +457,7 @@ def main_system():
             st.plotly_chart(fig_pie, use_container_width=True)
             
             st.write("---")
+            
             st.subheader(f"🏆 Top {jumlah_pola_lolos} Kombinasi Transaksi Terbanyak")
             
             fig_bar = px.bar(
@@ -429,6 +476,7 @@ def main_system():
             
             tabel_tampil = top_5_rules[['Nama_Pola', 'Support_Gabungan', 'Nilai_Confidence_Aktual', 'Jumlah_Transaksi_Kombinasi']].copy()
             tabel_tampil.insert(0, 'No', range(1, 1 + len(tabel_tampil)))
+            
             st.dataframe(tabel_tampil, use_container_width=True, hide_index=True)
         else: 
             st.warning("Jalankan analisis dulu di menu utama!")
@@ -532,13 +580,13 @@ def main_system():
             <div class="kunci-font-modern" style="background-color:#fff; padding:25px; border:1px solid #ccc; width:340px; margin:10px auto; border-radius:8px; box-shadow:2px 2px 10px rgba(0,0,0,0.05);">
                 <div style="text-align:center; border-bottom:1px dashed #ccc; padding-bottom:12px; margin-bottom:12px;">
                     <h3 style="margin:0; font-size:18px; color:#000; font-weight:800; letter-spacing:0.5px;">APOTEK NANA</h3>
-                    <p style="font-size:11px; margin:4px 0 0 0; color:#555;">ARSIP REFERENSI KENDALI STOK</p>
+                    <p style="font-size:11px; margin:3px 0 0 0; color:#555;">ARSIP REFERENSI KENDALI STOK</p>
                 </div>
                 <table style="width:100%; font-size:12px; color:#222; margin-bottom:12px; line-height:1.6;">
-                    <tr><td style="width:90px; color:#666;">ID Dokumen</td><td>: {dp['no_resep']}</td></tr>
-                    <tr><td style="color:#666;">Tgl Cetak</td><td>: {dp['tanggal']}</td></tr>
-                    <tr><td style="color:#666;">Otoritas</td><td>: {dp['nama']}</td></tr>
-                    <tr><td style="color:#666;">Periode Data</td><td>: {nama_bulan_aktif.upper()}</td></tr>
+                    <tr><td>ID Dokumen</td><td>: {dp['no_resep']}</td></tr>
+                    <tr><td>Tgl Cetak</td><td>: {dp['tanggal']}</td></tr>
+                    <tr><td>Otoritas</td><td>: {dp['nama']}</td></tr>
+                    <tr><td>Periode Data</td><td>: {nama_bulan_aktif.upper()}</td></tr>
                 </table>
                 <div style="border-top:1px dashed #ccc; padding-top:8px;">
                     <p style="margin:0 0 10px 0; font-size:12px; font-weight:bold; color:#000; text-align:center;">--- DAFTAR PERFORMA OBAT TERBAIK ---</p>
@@ -644,7 +692,7 @@ def main_system():
         try:
             output = io.BytesIO()
             with pd.ExcelWriter(output, engine='xlsxwriter', engine_kwargs={'options': {'in_memory': True}}) as writer:
-                rules_to_export.to_excel(writer, index=False, sheet_name='Hasil_Apriori', startrow=4)
+                rules_to_excel = rules_to_export.to_excel(writer, index=False, sheet_name='Hasil_Apriori', startrow=4)
                 
                 workbook = writer.book
                 worksheet = writer.sheets['Hasil_Apriori']
