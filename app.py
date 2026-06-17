@@ -239,7 +239,7 @@ def main_system():
         c3.metric("Admin", "Apoteker")
         st.info("Selamat datang! Gunakan menu di samping untuk mulai mengolah data transaksi.")
 
-   elif "Data Transaksi" in menu:
+    elif "Data Transaksi" in menu:
         st.subheader("🗄️ Sumber Data Transaksi")
         sumber_data = st.radio("Pilih Metode Pengambilan Data:", ["Sambungkan ke Database MySQL XAMPP", "Upload File CSV Manual"])
         
