@@ -14,13 +14,18 @@ except ImportError:
 # --- 1. KONFIGURASI HALAMAN ---
 st.set_page_config(page_title="SI-APO | Premium", page_icon="💜", layout="wide")
 
-# --- 2. CSS MASTER (STABIL, BALIK KE FONT ASLI, WARNA TETAP UNGU PREMIUM) ---
+# --- 2. CSS MASTER (STABIL, SIDEBAR NORMAL & STRUK TETAP COURIER) ---
 st.markdown("""
     <style>
     /* Aplikasi Tema Warna Background Sesuai Gambar */
     .stApp { 
         background-color: #050510; 
         color: #E2E8F0;
+    }
+    
+    /* KHUSUS MEMBUNGKUS STRUK BIAR TETAP FONT COURIER KASIR ASLI */
+    .kunci-font-struk, .kunci-font-struk * {
+        font-family: 'Courier New', Courier, monospace !important;
     }
     
     /* Mempercantik Judul Utama */
@@ -151,7 +156,7 @@ def tampilkan_struk(dp, do):
             </tr>
         """
     html_struk = f"""
-    <div style="background-color:#fff; padding:20px; border:1px solid #ccc; font-family:'Courier New', Courier, monospace; width:300px; margin:10px auto; border-radius:5px; box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
+    <div class="kunci-font-struk" style="background-color:#fff; padding:20px; border:1px solid #ccc; width:300px; margin:10px auto; border-radius:5px; box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
         <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:10px; margin-bottom:10px;">
             <h3 style="margin:0; font-size:16px; color:#000;">APOTEK NANA</h3>
             <p style="font-size:10px; margin:0; color:#000;">Jl. Bunga Lily No. 30, Bekasi</p>
@@ -527,7 +532,7 @@ def main_system():
                 nama_obat = item['Nama_Obat']
                 total_jual = item['Total_Beli']
                 
-                if nama_obat in rules_dict:
+                if nama_obat in metals if nama_obat in rules_dict:
                     pasangan = rules_dict[nama_obat]['rekomendasi']
                     conf_pct = rules_dict[nama_obat]['confidence']
                     status_note = f"Top #{top_obat_list.index(item)+1} Laris ({total_jual}x). Paket Apriori: +{pasangan} ({conf_pct}%)"
@@ -556,8 +561,9 @@ def main_system():
                     </tr>
                 """
             
+            # PERBAIKAN: Disematkan class khusus agar struk di-render aman menggunakan Courier New
             html_struk_arsip = f"""
-            <div style="background-color:#fff; padding:25px; border:1px solid #ccc; font-family:'Courier New', Courier, monospace; width:340px; margin:10px auto; border-radius:5px; box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
+            <div class="kunci-font-struk" style="background-color:#fff; padding:25px; border:1px solid #ccc; width:340px; margin:10px auto; border-radius:5px; box-shadow:2px 2px 10px rgba(0,0,0,0.1);">
                 <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:10px; margin-bottom:10px;">
                     <h3 style="margin:0; font-size:16px; color:#000;">APOTEK NANA</h3>
                     <p style="font-size:10px; margin:3px 0 0 0; color:#000;">ARSIP REFERENSI KENDALI STOK</p>
