@@ -239,7 +239,7 @@ def main_system():
         c3.metric("Admin", "Apoteker")
         st.info("Selamat datang! Gunakan menu di samping untuk mulai mengolah data transaksi.")
 
-    elif "Data Transaksi" in menu:
+   elif "Data Transaksi" in menu:
         st.subheader("🗄️ Sumber Data Transaksi")
         sumber_data = st.radio("Pilih Metode Pengambilan Data:", ["Sambungkan ke Database MySQL XAMPP", "Upload File CSV Manual"])
         
@@ -252,12 +252,13 @@ def main_system():
                 else:
                     st.warning("Database kosong atau tidak terhubung dengan benar.")
         else:
-            up = st.file_uploader("Upload File CSV", type="csv")
+            # Mengunci key uploader agar bisa di-clear fisiknya lewat session state
+            up = st.file_uploader("Upload File CSV", type="csv", key="uploader_csv")
             if up: 
                 st.session_state["data_farmasi"] = pd.read_csv(up)
                 st.success("Data CSV berhasil dimuat!")
         
-        # --- PERBAIKAN TOTAL POSISI TOMBOL RESET ---
+        # --- PERBAIKAN TOTAL POSISI & FUNGSI TOMBOL RESET ---
         if st.session_state["data_farmasi"] is not None:
             st.write("---")
             st.markdown("### 📋 Data Transaksi yang Aktif di Sistem:")
@@ -266,9 +267,11 @@ def main_system():
                 st.session_state["data_farmasi"] = None
                 st.session_state["hasil_rules"] = None
                 st.session_state["data_struk"] = None
+                # Menghapus cache file di browser uploader secara fisik biar kembali kosong
+                if "uploader_csv" in st.session_state:
+                    del st.session_state["uploader_csv"]
                 st.success("Semua data di sistem berhasil dibersihkan!")
                 st.rerun()
-
     elif "Proses Apriori" in menu:
         if st.session_state["data_farmasi"] is not None:
             df = st.session_state["data_farmasi"]
